@@ -1,6 +1,8 @@
-import js from "@eslint/js";
 import globals from "globals";
+
+import js from "@eslint/js";
 import tseslint from "typescript-eslint";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
 
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
@@ -44,4 +46,5 @@ export default tseslint.config(
       ...reactDom.configs.recommended.rules,
     },
   },
+  eslintConfigPrettier,
 );

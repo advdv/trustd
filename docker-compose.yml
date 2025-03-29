@@ -1,0 +1,10 @@
+services:
+  trustd:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: trustd
+      args:
+        VERSION: ${VERSION:-v0.0.0-compose}
+    ports:
+      - "9595:8282"

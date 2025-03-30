@@ -12,6 +12,10 @@ import {
 
 // declare the route for this page.
 export const Route = createFileRoute("/")({
+  loader: ({ context: { queryClient } }) => {
+    console.error("TODO, something with query client:", queryClient);
+    return {};
+  },
   component: RouteComponent,
 });
 

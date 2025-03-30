@@ -1,3 +1,6 @@
+import { createFileRoute } from "@tanstack/react-router";
+
+import "@xyflow/react/dist/style.css";
 import {
   ReactFlow,
   MiniMap,
@@ -7,7 +10,10 @@ import {
   useEdgesState,
 } from "@xyflow/react";
 
-import "@xyflow/react/dist/style.css";
+// declare the route for this page.
+export const Route = createFileRoute("/")({
+  component: RouteComponent,
+});
 
 // generateRandomGraph will generate a random graph.
 function generateRandomGraph(nodeCount: number, edgeCount: number) {
@@ -41,8 +47,8 @@ const { nodes: initialNodes, edges: initialEdges } = generateRandomGraph(
   50,
 );
 
-// render the diagram.
-export default function App() {
+// render the route.
+function RouteComponent() {
   const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
 

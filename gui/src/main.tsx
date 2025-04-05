@@ -1,8 +1,21 @@
+// global css
+import "./index.css";
+
+// basic react imports
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
+// tanstack query and router
 import { RouterProvider, createRouter } from "@tanstack/react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
+
+// connect rpc dependencies.
+import { createConnectTransport } from "@connectrpc/connect-web";
+
+// The transport defines what endpoint the application gets its data from.
+const crpcTransport = createConnectTransport({
+  baseUrl: "https://demo.connectrpc.com",
+});
 
 // tanstack query for loading data from our Go code.
 const queryClient = new QueryClient();
@@ -14,6 +27,7 @@ const router = createRouter({
   // provide context for all routes, ses: https://tanstack.com/router/v1/docs/framework/react/guide/router-context
   context: {
     queryClient,
+    crpcTransport,
   },
   // preload data already when user hovers over a link.
   defaultPreload: "intent",
@@ -31,17 +45,13 @@ declare module "@tanstack/react-router" {
   }
 }
 
-// global css
-import "./index.css";
-
-// render the react app.
+// render the react app. Notice that we DO NOT add providers for tanstack query, or connect rpc
+// client. All data is loaded through route loaders.
 const rootEl = document.getElementById("root");
 if (rootEl !== null && rootEl.innerHTML == "") {
   createRoot(rootEl).render(
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
+      <RouterProvider router={router} />
     </StrictMode>,
   );
 }

@@ -11,6 +11,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@buf/connectrpc_eliza.bufbuild_es": "^2.2.5-20230913231627-233fca715f49.1",
+    "@buf/connectrpc_eliza.connectrpc_query-es": "^2.0.1-20230913231627-233fca715f49.1",
+    "@connectrpc/connect": "^2.0.2",
+    "@connectrpc/connect-query": "^2.0.1",
+    "@connectrpc/connect-web": "^2.0.2",
     "@tanstack/react-query": "^5.71.0",
     "@tanstack/react-router": "^1.114.29",
     "@xyflow/react": "^12.5.1",

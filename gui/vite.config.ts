@@ -5,10 +5,19 @@ import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    //eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    TanStackRouterVite({}),
-    react(),
-    tailwindcss(),
-  ],
+  plugins: [TanStackRouterVite({}), react(), tailwindcss()],
+  build: {
+    rollupOptions: {
+      output: {
+        // to reduce the size of the largest chunk we split out react.
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("react") && !id.includes("@tanstack")) {
+              return "react";
+            }
+          }
+        },
+      },
+    },
+  },
 });

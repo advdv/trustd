@@ -2,5 +2,6 @@
 !cmd/**/*.go
 !internal/**/*.go
 !gui/dist
+!gui/gui.go
 !go.mod
 !go.sum

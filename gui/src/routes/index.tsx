@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { say } from "@buf/connectrpc_eliza.connectrpc_query-es/connectrpc/eliza/v1/eliza-ElizaService_connectquery";
 
 import "@xyflow/react/dist/style.css";
 import {
@@ -9,12 +10,22 @@ import {
   useNodesState,
   useEdgesState,
 } from "@xyflow/react";
+import {
+  callUnaryMethod,
+  createConnectQueryKey,
+} from "@connectrpc/connect-query";
 
 // declare the route for this page.
 export const Route = createFileRoute("/")({
-  loader: ({ context: { queryClient } }) => {
-    console.error("TODO, something with query client:", queryClient);
-    return {};
+  loader: ({ context: { queryClient, crpcTransport } }) => {
+    return queryClient.ensureQueryData({
+      queryFn: () => callUnaryMethod(crpcTransport, say, {}),
+      queryKey: createConnectQueryKey({
+        transport: crpcTransport,
+        schema: say,
+        cardinality: "finite",
+      }),
+    });
   },
   component: RouteComponent,
 });
@@ -53,6 +64,10 @@ const { nodes: initialNodes, edges: initialEdges } = generateRandomGraph(
 
 // render the route.
 function RouteComponent() {
+  const nodesAndEdges = Route.useLoaderData();
+
+  console.log("nodes and edges", nodesAndEdges);
+
   const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
 

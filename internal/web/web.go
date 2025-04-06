@@ -2,14 +2,13 @@
 package web
 
 import (
-	"context"
-	"fmt"
 	"net/http"
 
-	"github.com/advdv/bhttp"
 	"github.com/advdv/stdgo/stdfx"
 	gui "github.com/advdv/trustd/gui"
+	"github.com/rs/cors"
 	"go.uber.org/fx"
+	"go.uber.org/zap"
 )
 
 // Config configures the package's components.
@@ -18,27 +17,24 @@ type Config struct{}
 // Params declares input components required for this package's components.
 type Params struct {
 	fx.In
+	RPCHandler http.Handler `name:"rpc"`
+	Logger     *zap.Logger
 }
 
 // New inits the main http handler.
-func New(Params) (http.Handler, error) {
+func New(params Params) (http.Handler, error) {
 	fsrv := http.FileServerFS(gui.Dist)
+	mux := http.NewServeMux()
 
-	mux := bhttp.NewServeMux()
-	mux.HandleFunc("/foo", func(_ context.Context, w bhttp.ResponseWriter, _ *http.Request) error {
-		_, err := fmt.Fprintf(w, `{"hello":"world"}`)
-		return err
-	})
+	// serve the rpc and the files.
+	mux.Handle("/rpc/", http.StripPrefix("/rpc", params.RPCHandler))
+	mux.Handle("/", fsrv)
 
-	mux.HandleFunc("/", func(_ context.Context, w bhttp.ResponseWriter, r *http.Request) error {
-		fsrv.ServeHTTP(w, r)
-		return nil
-	})
-
-	return mux, nil
+	// for now, allow all for CORS.
+	return cors.AllowAll().Handler(mux), nil
 }
 
 // Provide provides the package's components as an fx module.
 func Provide() fx.Option {
-	return stdfx.ZapEnvCfgModule[Config]("stdzap", New)
+	return stdfx.ZapEnvCfgModule[Config]("web", New)
 }

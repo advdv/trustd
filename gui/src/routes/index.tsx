@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { say } from "@buf/connectrpc_eliza.connectrpc_query-es/connectrpc/eliza/v1/eliza-ElizaService_connectquery";
+import { GraphService } from "../proto/internal/rpc/v1/rpc_pb";
 
 import "@xyflow/react/dist/style.css";
 import {
@@ -9,20 +9,33 @@ import {
   Background,
   useNodesState,
   useEdgesState,
+  Handle,
+  Position,
 } from "@xyflow/react";
 import {
   callUnaryMethod,
   createConnectQueryKey,
 } from "@connectrpc/connect-query";
+import { convertRandomGraphResponse } from "../graph-utils";
 
 // declare the route for this page.
 export const Route = createFileRoute("/")({
   loader: ({ context: { queryClient, crpcTransport } }) => {
     return queryClient.ensureQueryData({
-      queryFn: () => callUnaryMethod(crpcTransport, say, {}),
+      queryFn: () =>
+        callUnaryMethod(crpcTransport, GraphService.method.randomGraph, {
+          seed1: BigInt(1),
+          seed2: BigInt(30),
+          numNodes: BigInt(820), // 1/10.000.000th
+          initialConnected: BigInt(2),
+          rewiringProbability: 0.9,
+
+          layoutIterations: BigInt(300),
+          layoutArea: 10000000,
+        }),
       queryKey: createConnectQueryKey({
         transport: crpcTransport,
-        schema: say,
+        schema: GraphService.method.randomGraph,
         cardinality: "finite",
       }),
     });
@@ -30,43 +43,33 @@ export const Route = createFileRoute("/")({
   component: RouteComponent,
 });
 
-// generateRandomGraph will generate a random graph.
-function generateRandomGraph(nodeCount: number, edgeCount: number) {
-  const nodes = Array.from({ length: nodeCount }, (_, i) => ({
-    id: (i + 1).toString(),
-    position: { x: Math.random() * 1000, y: Math.random() * 1000 },
-    data: { label: `Node ${(i + 1).toString()}` },
-  }));
-
-  const edges = Array.from({ length: edgeCount }, (_, i) => {
-    let source, target;
-    do {
-      source = Math.ceil(Math.random() * nodeCount).toString();
-      target = Math.ceil(Math.random() * nodeCount).toString();
-    } while (source === target); // ensure source != target
-
-    return {
-      id: `e${i.toString()}-${source}-${target}`,
-      source,
-      target,
-      label: Math.random().toFixed(4), // random decimal
-    };
-  });
-
-  return { nodes, edges };
+// A minimal custom node that only shows text
+function LabelNode({ data }: { data: { label: string } }) {
+  return (
+    <>
+      <Handle type="target" position={Position.Top} />
+      <div style={{ background: "transparent", border: "none" }}>
+        {data.label}
+      </div>
+      <Handle type="source" position={Position.Bottom} id="a" />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        id="b"
+        style={{ left: 10 }}
+      />
+    </>
+  );
 }
 
-// declare initial nodes and edges.
-const { nodes: initialNodes, edges: initialEdges } = generateRandomGraph(
-  100,
-  50,
-);
+// Register custom node types
+const nodeTypes = { labelNode: LabelNode };
 
 // render the route.
 function RouteComponent() {
   const nodesAndEdges = Route.useLoaderData();
-
-  console.log("nodes and edges", nodesAndEdges);
+  const { nodes: initialNodes, edges: initialEdges } =
+    convertRandomGraphResponse(nodesAndEdges);
 
   const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
@@ -74,10 +77,12 @@ function RouteComponent() {
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
       <ReactFlow
+        minZoom={0.001}
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        nodeTypes={nodeTypes}
         fitView
         defaultEdgeOptions={{ type: "step" }}
       >

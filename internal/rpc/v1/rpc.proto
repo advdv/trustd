@@ -1,0 +1,43 @@
+edition = "2023";
+
+package internal.rpc.v1;
+
+message Position {
+  int64 x = 1;
+  int64 y = 2;
+}
+
+message NodeData {
+  string label = 1;
+}
+
+message Node {
+  string id = 1;
+  Position position = 2;
+  NodeData data = 3;
+}
+
+message Edge {
+  string id = 1;
+  string source = 2;
+  string target = 3;
+}
+
+message RandomGraphRequest {
+  uint64 seed1 = 1;
+  uint64 seed2 = 2;
+  int64 num_nodes = 3;
+  int64 initial_connected = 4;
+  double rewiring_probability = 5;
+
+  int64 layout_iterations = 6;
+  double layout_area = 7;
+}
+message RandomGraphResponse {
+  repeated Node nodes = 1;
+  repeated Edge edges = 2;
+}
+
+service GraphService {
+  rpc RandomGraph(RandomGraphRequest) returns (RandomGraphResponse);
+}

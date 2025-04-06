@@ -4,6 +4,7 @@ package main
 import (
 	"github.com/advdv/stdgo/fx/stdhttpserverfx"
 	"github.com/advdv/stdgo/fx/stdzapfx"
+	"github.com/advdv/trustd/internal/rpc"
 	"github.com/advdv/trustd/internal/web"
 	"go.uber.org/fx"
 )
@@ -14,6 +15,7 @@ func main() {
 		stdzapfx.Fx(),
 		stdhttpserverfx.Provide(),
 
+		rpc.Provide(),
 		web.Provide(),
 	).Run()
 }

@@ -14,7 +14,7 @@ import { createConnectTransport } from "@connectrpc/connect-web";
 
 // The transport defines what endpoint the application gets its data from.
 const crpcTransport = createConnectTransport({
-  baseUrl: "https://demo.connectrpc.com",
+  baseUrl: "http://localhost:9595/rpc",
 });
 
 // tanstack query for loading data from our Go code.

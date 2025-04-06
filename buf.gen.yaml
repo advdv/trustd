@@ -1,0 +1,30 @@
+version: v2
+managed:
+  enabled: true
+  override:
+    - file_option: go_package_prefix
+      value: github.com/advdv/trustd
+plugins:
+  - local:
+      - go
+      - tool
+      - protoc-gen-go
+    out: .
+    opt:
+      - paths=source_relative
+      - default_api_level=API_OPAQUE
+  - local:
+      - go
+      - tool
+      - protoc-gen-connect-go
+    out: .
+    opt:
+      - paths=source_relative
+  - local:
+      - npm
+      - exec
+      - --prefix gui
+      - "@bufbuild/protoc-gen-es"
+    out: gui/src/proto
+    opt:
+      - target=ts

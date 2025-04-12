@@ -15,12 +15,14 @@ message Node {
   string id = 1;
   Position position = 2;
   NodeData data = 3;
+  string type = 4;
 }
 
 message Edge {
   string id = 1;
   string source = 2;
   string target = 3;
+  string type = 4;
 }
 
 message RandomGraphRequest {
@@ -32,6 +34,12 @@ message RandomGraphRequest {
 
   int64 layout_iterations = 6;
   double layout_area = 7;
+
+  int64 walk_length = 8;
+  int64 num_walks = 9;
+
+  uint64 seed3 = 10;
+  uint64 seed4 = 11;
 }
 message RandomGraphResponse {
   repeated Node nodes = 1;

@@ -21,7 +21,7 @@ import (
 // your protobuf definitions in this package.
 //
 //nolint:gocognit,varnamelen
-func GenerateWattsStrogatzGraph(r *rand.Rand, n, k int, beta float64) *rpcv1.RandomGraphResponse {
+func GenerateWattsStrogatzGraph(r *rand.Rand, n, k int, beta float64) (*rpcv1.RandomGraphResponse, string, string) {
 	// adjacency[i] will be a set of neighbors of node i
 	adjacency := make([]map[int]bool, n)
 	for i := range adjacency {
@@ -75,6 +75,7 @@ func GenerateWattsStrogatzGraph(r *rand.Rand, n, k int, beta float64) *rpcv1.Ran
 
 		node := &rpcv1.Node{}
 		node.SetId(fmt.Sprintf("%d", i))
+		node.SetType("labelNode")
 
 		pos := &rpcv1.Position{}
 		pos.SetX(x)
@@ -83,6 +84,21 @@ func GenerateWattsStrogatzGraph(r *rand.Rand, n, k int, beta float64) *rpcv1.Ran
 
 		nodes = append(nodes, node)
 	}
+
+	// ---- NEW CODE: Assign exactly one bobNode and one aliceNode randomly ----
+	var bobID, adaID string
+	if n >= 2 {
+		bobIndex := r.IntN(n)
+		adaIndex := r.IntN(n)
+		for adaIndex == bobIndex {
+			adaIndex = r.IntN(n)
+		}
+		nodes[bobIndex].SetType("bobNode")
+		nodes[adaIndex].SetType("adaNode")
+		bobID = nodes[bobIndex].GetId()
+		adaID = nodes[adaIndex].GetId()
+	}
+	// -------------------------------------------------------------------------
 
 	// 4. Convert adjacency into a list of Edges
 	//    We only add an edge once (i -> j) for i < j to avoid duplicates.
@@ -105,7 +121,7 @@ func GenerateWattsStrogatzGraph(r *rand.Rand, n, k int, beta float64) *rpcv1.Ran
 	resp := &rpcv1.RandomGraphResponse{}
 	resp.SetNodes(nodes)
 	resp.SetEdges(edges)
-	return resp
+	return resp, bobID, adaID
 }
 
 // ForceDirectedLayout applies a simple force-directed layout to the given RandomGraphResponse.
@@ -294,17 +310,139 @@ func findNodeIndex(nodes []*rpcv1.Node, nodeID string) int {
 	return -1
 }
 
+// NonWeightedRandomWalk performs a random walk of `walkLength` steps starting
+// from the given node ID in the provided graph, treating edges as undirected
+// and picking neighbors uniformly at random.
+//
+// - The *source node* (where the walk starts) keeps its original type.
+// - Every *other node* visited is updated to newNodeType.
+// - Every *edge* traversed is updated to newEdgeType.
+func NonWeightedRandomWalk(
+	rng *rand.Rand,
+	resp *rpcv1.RandomGraphResponse,
+	walkLength int,
+	startNodeID string,
+	newNodeType string,
+	newEdgeType string,
+) []string {
+	if resp == nil {
+		return nil
+	}
+	nodes := resp.GetNodes()
+	edges := resp.GetEdges()
+	if len(nodes) == 0 {
+		return nil
+	}
+
+	// Ensure the start node is valid. Otherwise, fallback to nodes[0].
+	validStart := false
+	for _, node := range nodes {
+		if node.GetId() == startNodeID {
+			validStart = true
+			break
+		}
+	}
+	if !validStart {
+		startNodeID = nodes[0].GetId() // fallback
+	}
+
+	// Build adjacency (undirected).
+	adjacency := make(map[string][]string, len(nodes))
+	for _, edge := range edges {
+		s := edge.GetSource()
+		t := edge.GetTarget()
+		adjacency[s] = append(adjacency[s], t)
+		adjacency[t] = append(adjacency[t], s)
+	}
+
+	// Build quick lookups for nodes and edges.
+	nodeMap := make(map[string]*rpcv1.Node, len(nodes))
+	for _, nd := range nodes {
+		nodeMap[nd.GetId()] = nd
+	}
+
+	// Unordered edge-key helper to ensure we treat edges as undirected.
+	minMax := func(a, b string) (string, string) {
+		if a < b {
+			return a, b
+		}
+		return b, a
+	}
+	edgeMap := make(map[[2]string]*rpcv1.Edge, len(edges))
+	for _, e := range edges {
+		s, t := e.GetSource(), e.GetTarget()
+		key := [2]string{}
+		key[0], key[1] = minMax(s, t)
+		edgeMap[key] = e
+	}
+
+	path := make([]string, 0, walkLength+1)
+	current := startNodeID
+
+	// *** DO NOT change the type of the starting node. ***
+	// The user wants the starting node to keep its original style/type.
+	// So we do NOT do: nodeMap[current].SetType(newNodeType)
+	path = append(path, current)
+
+	// Walk
+	for i := 0; i < walkLength; i++ {
+		neighbors := adjacency[current]
+		if len(neighbors) == 0 {
+			break
+		}
+		next := neighbors[rng.IntN(len(neighbors))]
+
+		// -- 1) Update the node's type (for the newly visited node) --
+		nodeMap[next].SetType(newNodeType)
+
+		// -- 2) Update the edge's type for the walked edge --
+		s, t := minMax(current, next)
+		if ePtr, ok := edgeMap[[2]string{s, t}]; ok {
+			ePtr.SetType(newEdgeType)
+		}
+
+		path = append(path, next)
+		current = next
+	}
+
+	return path
+}
+
 func (g) RandomGraph(
 	_ context.Context, req *connect.Request[rpcv1.RandomGraphRequest],
 ) (*connect.Response[rpcv1.RandomGraphResponse], error) {
 	//nolint:gosec
-	rng := rand.New(rand.NewPCG(
+	graphRng := rand.New(rand.NewPCG(
 		req.Msg.GetSeed1(), req.Msg.GetSeed2(),
 	))
+	//nolint:gosec
+	walkRng := rand.New(rand.NewPCG(
+		req.Msg.GetSeed3(), req.Msg.GetSeed4(),
+	))
 
-	return connect.NewResponse(ForceDirectedLayout(rng,
-		int(req.Msg.GetLayoutIterations()), req.Msg.GetLayoutArea(), GenerateWattsStrogatzGraph(rng,
-			int(req.Msg.GetNumNodes()),
-			int(req.Msg.GetInitialConnected()),
-			req.Msg.GetRewiringProbability()))), nil
+	_ = walkRng
+
+	graph, bobID, adaID := GenerateWattsStrogatzGraph(graphRng,
+		int(req.Msg.GetNumNodes()),
+		int(req.Msg.GetInitialConnected()),
+		req.Msg.GetRewiringProbability())
+
+	graph = ForceDirectedLayout(graphRng,
+		int(req.Msg.GetLayoutIterations()), req.Msg.GetLayoutArea(), graph)
+
+	// @TODO figure out why the starting node does't keep its original type
+	// @TODO make sure the walk edges use the same bezier edges, or make the default smooth edgeagain.
+	// @TODO Get multiple random walks working
+	// @TODO make sure the start/end nodes keep their original (non walked) style
+	NonWeightedRandomWalk(walkRng, graph, int(req.Msg.GetWalkLength()), bobID, "bobWalkNode", "bobWalkEdge")
+	NonWeightedRandomWalk(walkRng, graph, int(req.Msg.GetWalkLength()), adaID, "adaWalkNode", "adaWalkEdge")
+
+	// set the type to a base edge if it's not walked.
+	for _, edge := range graph.GetEdges() {
+		if edge.GetType() == "" {
+			edge.SetType("unwalkedEdge")
+		}
+	}
+
+	return connect.NewResponse(graph), nil
 }

@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file internal/rpc/v1/rpc.proto.
  */
 export const file_internal_rpc_v1_rpc: GenFile = /*@__PURE__*/
-  fileDesc("ChlpbnRlcm5hbC9ycGMvdjEvcnBjLnByb3RvEg9pbnRlcm5hbC5ycGMudjEiIAoIUG9zaXRpb24SCQoBeBgBIAEoAxIJCgF5GAIgASgDIhkKCE5vZGVEYXRhEg0KBWxhYmVsGAEgASgJImgKBE5vZGUSCgoCaWQYASABKAkSKwoIcG9zaXRpb24YAiABKAsyGS5pbnRlcm5hbC5ycGMudjEuUG9zaXRpb24SJwoEZGF0YRgDIAEoCzIZLmludGVybmFsLnJwYy52MS5Ob2RlRGF0YSIyCgRFZGdlEgoKAmlkGAEgASgJEg4KBnNvdXJjZRgCIAEoCRIOCgZ0YXJnZXQYAyABKAkirgEKElJhbmRvbUdyYXBoUmVxdWVzdBINCgVzZWVkMRgBIAEoBBINCgVzZWVkMhgCIAEoBBIRCgludW1fbm9kZXMYAyABKAMSGQoRaW5pdGlhbF9jb25uZWN0ZWQYBCABKAMSHAoUcmV3aXJpbmdfcHJvYmFiaWxpdHkYBSABKAESGQoRbGF5b3V0X2l0ZXJhdGlvbnMYBiABKAMSEwoLbGF5b3V0X2FyZWEYByABKAEiYQoTUmFuZG9tR3JhcGhSZXNwb25zZRIkCgVub2RlcxgBIAMoCzIVLmludGVybmFsLnJwYy52MS5Ob2RlEiQKBWVkZ2VzGAIgAygLMhUuaW50ZXJuYWwucnBjLnYxLkVkZ2UyaAoMR3JhcGhTZXJ2aWNlElgKC1JhbmRvbUdyYXBoEiMuaW50ZXJuYWwucnBjLnYxLlJhbmRvbUdyYXBoUmVxdWVzdBokLmludGVybmFsLnJwYy52MS5SYW5kb21HcmFwaFJlc3BvbnNlQqwBChNjb20uaW50ZXJuYWwucnBjLnYxQghScGNQcm90b1ABWi1naXRodWIuY29tL2FkdmR2L3RydXN0ZC9pbnRlcm5hbC9ycGMvdjE7cnBjdjGiAgNJUliqAg9JbnRlcm5hbC5ScGMuVjHKAg9JbnRlcm5hbFxScGNcVjHiAhtJbnRlcm5hbFxScGNcVjFcR1BCTWV0YWRhdGHqAhFJbnRlcm5hbDo6UnBjOjpWMWIIZWRpdGlvbnNw6Ac");
+  fileDesc("ChlpbnRlcm5hbC9ycGMvdjEvcnBjLnByb3RvEg9pbnRlcm5hbC5ycGMudjEiIAoIUG9zaXRpb24SCQoBeBgBIAEoAxIJCgF5GAIgASgDIhkKCE5vZGVEYXRhEg0KBWxhYmVsGAEgASgJInYKBE5vZGUSCgoCaWQYASABKAkSKwoIcG9zaXRpb24YAiABKAsyGS5pbnRlcm5hbC5ycGMudjEuUG9zaXRpb24SJwoEZGF0YRgDIAEoCzIZLmludGVybmFsLnJwYy52MS5Ob2RlRGF0YRIMCgR0eXBlGAQgASgJIkAKBEVkZ2USCgoCaWQYASABKAkSDgoGc291cmNlGAIgASgJEg4KBnRhcmdldBgDIAEoCRIMCgR0eXBlGAQgASgJIvQBChJSYW5kb21HcmFwaFJlcXVlc3QSDQoFc2VlZDEYASABKAQSDQoFc2VlZDIYAiABKAQSEQoJbnVtX25vZGVzGAMgASgDEhkKEWluaXRpYWxfY29ubmVjdGVkGAQgASgDEhwKFHJld2lyaW5nX3Byb2JhYmlsaXR5GAUgASgBEhkKEWxheW91dF9pdGVyYXRpb25zGAYgASgDEhMKC2xheW91dF9hcmVhGAcgASgBEhMKC3dhbGtfbGVuZ3RoGAggASgDEhEKCW51bV93YWxrcxgJIAEoAxINCgVzZWVkMxgKIAEoBBINCgVzZWVkNBgLIAEoBCJhChNSYW5kb21HcmFwaFJlc3BvbnNlEiQKBW5vZGVzGAEgAygLMhUuaW50ZXJuYWwucnBjLnYxLk5vZGUSJAoFZWRnZXMYAiADKAsyFS5pbnRlcm5hbC5ycGMudjEuRWRnZTJoCgxHcmFwaFNlcnZpY2USWAoLUmFuZG9tR3JhcGgSIy5pbnRlcm5hbC5ycGMudjEuUmFuZG9tR3JhcGhSZXF1ZXN0GiQuaW50ZXJuYWwucnBjLnYxLlJhbmRvbUdyYXBoUmVzcG9uc2VCrAEKE2NvbS5pbnRlcm5hbC5ycGMudjFCCFJwY1Byb3RvUAFaLWdpdGh1Yi5jb20vYWR2ZHYvdHJ1c3RkL2ludGVybmFsL3JwYy92MTtycGN2MaICA0lSWKoCD0ludGVybmFsLlJwYy5WMcoCD0ludGVybmFsXFJwY1xWMeICG0ludGVybmFsXFJwY1xWMVxHUEJNZXRhZGF0YeoCEUludGVybmFsOjpScGM6OlYxYghlZGl0aW9uc3DoBw");
 
 /**
  * @generated from message internal.rpc.v1.Position
@@ -69,6 +69,11 @@ export type Node = Message<"internal.rpc.v1.Node"> & {
    * @generated from field: internal.rpc.v1.NodeData data = 3;
    */
   data?: NodeData;
+
+  /**
+   * @generated from field: string type = 4;
+   */
+  type: string;
 };
 
 /**
@@ -96,6 +101,11 @@ export type Edge = Message<"internal.rpc.v1.Edge"> & {
    * @generated from field: string target = 3;
    */
   target: string;
+
+  /**
+   * @generated from field: string type = 4;
+   */
+  type: string;
 };
 
 /**
@@ -143,6 +153,26 @@ export type RandomGraphRequest = Message<"internal.rpc.v1.RandomGraphRequest"> &
    * @generated from field: double layout_area = 7;
    */
   layoutArea: number;
+
+  /**
+   * @generated from field: int64 walk_length = 8;
+   */
+  walkLength: bigint;
+
+  /**
+   * @generated from field: int64 num_walks = 9;
+   */
+  numWalks: bigint;
+
+  /**
+   * @generated from field: uint64 seed3 = 10;
+   */
+  seed3: bigint;
+
+  /**
+   * @generated from field: uint64 seed4 = 11;
+   */
+  seed4: bigint;
 };
 
 /**

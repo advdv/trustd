@@ -20,7 +20,8 @@
     "@tanstack/react-router": "^1.114.29",
     "@xyflow/react": "^12.5.1",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@bufbuild/protoc-gen-es": "^2.2.5",

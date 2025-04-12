@@ -18,7 +18,7 @@ export function convertRandomGraphResponse(response: RandomGraphResponse): {
   const flowNodes: RFNode[] = response.nodes.map((node: RpcNode) => {
     return {
       id: node.id,
-      type: "labelNode",
+      type: node.type,
       position: {
         // Convert from bigint (or number) to a normal number
         x: Number(node.position?.x ?? 0),
@@ -37,6 +37,7 @@ export function convertRandomGraphResponse(response: RandomGraphResponse): {
       id: edge.id,
       source: edge.source,
       target: edge.target,
+      type: edge.type,
     };
   });
 
